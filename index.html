@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast - Real-Time Weather Predictions</title>
+    <meta name="description"
+        content="Get accurate real-time weather forecasts and predictions for any city worldwide. Check current weather, hourly forecasts, air quality, UV index, and more.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="weather-container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">🌤️ WeatherNow</h1>
+            <div class="header-actions">
+                <button id="savedLocationsBtn" class="saved-locations-btn" aria-label="Saved locations">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Saved
+                </button>
+                <button id="unitToggle" class="unit-toggle" aria-label="Toggle temperature unit">°C</button>
+            </div>
+        </header>
+
+        <!-- Saved Locations Modal -->
+        <div id="savedLocationsModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Saved Locations</h3>
+                    <button id="closeModal" class="close-modal">×</button>
+                </div>
+                <div id="savedLocationsList" class="saved-locations-list"></div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" id="cityInput" class="search-input" placeholder="Search for a city..."
+                    aria-label="City search input">
+                <button id="searchBtn" class="search-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="button-row">
+                <button id="locationBtn" class="location-btn" aria-label="Use current location">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="12" y1="2" x2="12" y2="6"></line>
+                        <line x1="12" y1="18" x2="12" y2="22"></line>
+                        <line x1="2" y1="12" x2="6" y2="12"></line>
+                        <line x1="18" y1="12" x2="22" y2="12"></line>
+                    </svg>
+                    Use My Location
+                </button>
+                <button id="saveLocationBtn" class="save-location-btn hidden" aria-label="Save current location">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Save Location
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading State -->
+        <div id="loader" class="loader hidden">
+            <div class="spinner"></div>
+            <p>Fetching weather data...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message hidden"></div>
+
+        <!-- Weather Alerts -->
+        <section id="weatherAlerts" class="alerts-section hidden"></section>
+
+        <!-- Current Weather -->
+        <section id="currentWeather" class="current-weather hidden">
+            <div class="weather-main">
+                <div class="location-info">
+                    <h2 id="cityName" class="city-name"></h2>
+                    <p id="currentDate" class="current-date"></p>
+                </div>
+                <div class="temperature-display">
+                    <div class="temp-main">
+                        <span id="temperature" class="temperature"></span>
+                        <span id="weatherIcon" class="weather-icon-large"></span>
+                    </div>
+                    <p id="weatherDescription" class="weather-description"></p>
+                </div>
+            </div>
+
+            <div class="weather-details">
+                <div class="detail-card">
+                    <div class="detail-icon">💧</div>
+                    <div class="detail-content">
+                        <p class="detail-label">Humidity</p>
+                        <p id="humidity" class="detail-value"></p>
+                    </div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon">💨</div>
+                    <div class="detail-content">
+                        <p class="detail-label">Wind Speed</p>
+                        <p id="windSpeed" class="detail-value"></p>
+                    </div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon">🌡️</div>
+                    <div class="detail-content">
+                        <p class="detail-label">Feels Like</p>
+                        <p id="feelsLike" class="detail-value"></p>
+                    </div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon">🎯</div>
+                    <div class="detail-content">
+                        <p class="detail-label">Pressure</p>
+                        <p id="pressure" class="detail-value"></p>
+                    </div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon">👁️</div>
+                    <div class="detail-content">
+                        <p class="detail-label">Visibility</p>
+                        <p id="visibility" class="detail-value"></p>
+                    </div>
+                </div>
+                <div class="detail-card">
+                    <div class="detail-icon">☁️</div>
+                    <div class="detail-content">
+                        <p class="detail-label">Cloudiness</p>
+                        <p id="cloudiness" class="detail-value"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Air Quality & UV Index -->
+        <section id="airQualityUV" class="air-quality-uv-section hidden">
+            <div class="aqi-uv-grid">
+                <!-- Air Quality -->
+                <div class="aqi-card">
+                    <h3 class="section-subtitle">
+                        <span class="subtitle-icon">🌫️</span>
+                        Air Quality
+                    </h3>
+                    <div class="aqi-display">
+                        <div id="aqiValue" class="aqi-value"></div>
+                        <div id="aqiLevel" class="aqi-level"></div>
+                    </div>
+                    <div id="pollutants" class="pollutants-grid"></div>
+                </div>
+
+                <!-- UV Index -->
+                <div class="uv-card">
+                    <h3 class="section-subtitle">
+                        <span class="subtitle-icon">☀️</span>
+                        UV Index
+                    </h3>
+                    <div class="uv-display">
+                        <div id="uvValue" class="uv-value"></div>
+                        <div id="uvLevel" class="uv-level"></div>
+                    </div>
+                    <p id="uvRecommendation" class="uv-recommendation"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sunrise & Sunset -->
+        <section id="sunTimes" class="sun-times-section hidden">
+            <h3 class="section-title">☀️ Sun Times</h3>
+            <div class="sun-times-grid">
+                <div class="sun-time-card">
+                    <div class="sun-icon">🌅</div>
+                    <div class="sun-time-content">
+                        <p class="sun-time-label">Sunrise</p>
+                        <p id="sunrise" class="sun-time-value"></p>
+                    </div>
+                </div>
+                <div class="sun-time-card">
+                    <div class="sun-icon">🌇</div>
+                    <div class="sun-time-content">
+                        <p class="sun-time-label">Sunset</p>
+                        <p id="sunset" class="sun-time-value"></p>
+                    </div>
+                </div>
+                <div class="sun-time-card">
+                    <div class="sun-icon">⏱️</div>
+                    <div class="sun-time-content">
+                        <p class="sun-time-label">Day Length</p>
+                        <p id="dayLength" class="sun-time-value"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hourly Forecast -->
+        <section id="hourlyForecast" class="hourly-forecast-section hidden">
+            <h3 class="section-title">📊 Hourly Forecast</h3>
+            <div id="hourlyContainer" class="hourly-container"></div>
+        </section>
+
+        <!-- Temperature Chart -->
+        <section id="temperatureChart" class="chart-section hidden">
+            <h3 class="section-title">📈 Temperature Trend</h3>
+            <div class="chart-container">
+                <canvas id="tempChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 5-Day Forecast -->
+        <section id="forecast" class="forecast-section hidden">
+            <h3 class="forecast-title">5-Day Forecast</h3>
+            <div id="forecastContainer" class="forecast-container"></div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
