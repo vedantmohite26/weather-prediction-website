@@ -1,4 +1,5 @@
 # 🌤️ Weather Prediction Website
+bd5e378503939ddaee76f12ad7a97608 api key of OpenWeatherMap
 
 A modern, feature-rich weather prediction website with real-time data powered by OpenWeatherMap API.
 
